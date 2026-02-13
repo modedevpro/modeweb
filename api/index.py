@@ -1,38 +1,44 @@
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify
 import yt_dlp
-import os
-import uuid
 
 app = Flask(__name__)
 
-DOWNLOAD_FOLDER = "downloads"
-os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
-
 @app.route("/")
 def home():
-    return "Video Downloader API is working ✅"
+    return "Video Links Extractor API is working ✅"
 
 @app.route("/download", methods=["GET"])
-def download_video():
+def get_video_links():
     url = request.args.get("url")
 
     if not url:
         return jsonify({"error": "No URL provided"}), 400
 
-    file_id = str(uuid.uuid4())
-    output_path = os.path.join(DOWNLOAD_FOLDER, f"{file_id}.mp4")
-
     ydl_opts = {
-        'outtmpl': output_path,
-        'format': 'best',
-        'quiet': True
+        'quiet': True,
+        'skip_download': True
     }
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            ydl.download([url])
+            info = ydl.extract_info(url, download=False)
 
-        return send_file(output_path, as_attachment=True)
+        formats = info.get("formats", [])
+        links = []
+
+        for f in formats:
+            if f.get("url"):
+                links.append({
+                    "quality": f.get("format_note") or f.get("height"),
+                    "ext": f.get("ext"),
+                    "url": f.get("url")
+                })
+
+        return jsonify({
+            "title": info.get("title"),
+            "thumbnail": info.get("thumbnail"),
+            "links": links
+        })
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
