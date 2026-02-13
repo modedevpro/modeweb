@@ -1,6 +1,5 @@
 from flask import Flask, request, jsonify
 import yt_dlp
-import os
 
 app = Flask(__name__)
 
@@ -11,16 +10,18 @@ def download():
     if not url:
         return jsonify({"error": "Missing url parameter"}), 400
 
-    if not os.path.exists("cookies.txt"):
-        return jsonify({"error": "cookies.txt not found"}), 500
-
     ydl_opts = {
         'quiet': True,
         'skip_download': True,
         'format': '18/22/best',
-        'cookiefile': 'cookies.txt',
+        'extractor_args': {
+            'youtube': {
+                'player_client': ['web']
+            }
+        },
         'http_headers': {
-            'User-Agent': 'Mozilla/5.0'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept-Language': 'en-US,en;q=0.9'
         }
     }
 
