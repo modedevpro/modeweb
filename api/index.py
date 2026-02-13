@@ -1,6 +1,7 @@
-def handler(request):
-    return {
-        "statusCode": 200,
-        "headers": {"Content-Type": "text/plain"},
-        "body": "Vercel Serverless API is working ✅"
-    }
+from flask import Flask
+
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return "Vercel Flask API is working ✅"
