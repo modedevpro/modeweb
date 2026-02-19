@@ -4,7 +4,6 @@ from flask import Flask, request, Response
 import requests
 import base64
 import urllib.parse
-import json
 
 app = Flask(__name__)
 
@@ -36,7 +35,7 @@ def google_translate(text, target_lang="en"):
 
     return translated_text
 
-@app.route("/generate")
+@app.route("/")
 def generate():
     text = request.args.get("text")
 
@@ -55,7 +54,7 @@ def generate():
     }
 
     headers = {
-        "User-Agent": "Mozilla/5.0 (Linux; Android 12; SM-A025F Build/SP1A.210812.016) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.7151.61 Mobile Safari/537.36",
+        "User-Agent": "Mozilla/5.0",
         "Content-Type": "application/json",
         "origin": "https://websim.com",
         "referer": "https://websim.com/"
@@ -70,5 +69,5 @@ def generate():
     else:
         return "لا توجد صوره"
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+# مهم عشان vercel
+handler = app
